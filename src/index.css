@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hide scrollbar for horizontal scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth scrolling for horizontal scroll */
+.scroll-smooth {
+  scroll-behavior: smooth;
+}
+
+/* Custom checkbox styles */
+input[type="checkbox"]:checked {
+  background-color: #111827;
+  border-color: #111827;
+}
+
+input[type="checkbox"]:focus {
+  ring-color: #111827;
+}
