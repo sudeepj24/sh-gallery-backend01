@@ -271,15 +271,16 @@ function ProductListRow({ product, categories, onEdit, onDelete, selected, onSel
         <div className="flex gap-2">
           <button
             onClick={onEdit}
-            className="p-1 text-gray-600 hover:text-blue-600"
+            className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 px-2 rounded text-sm flex items-center gap-1"
           >
-            <Edit size={16} />
+            <Edit size={14} />
+            Edit
           </button>
           <button
             onClick={onDelete}
-            className="p-1 text-gray-600 hover:text-red-600"
+            className="bg-red-100 hover:bg-red-200 text-red-700 py-1 px-2 rounded text-sm flex items-center justify-center"
           >
-            <Trash2 size={16} />
+            <Trash2 size={14} />
           </button>
         </div>
       </td>

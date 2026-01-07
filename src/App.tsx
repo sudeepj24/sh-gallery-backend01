@@ -29,7 +29,7 @@ function Gallery() {
 
   const loadData = async () => {
     const [productsRes, categoriesRes] = await Promise.all([
-      supabase.from('products').select('*'),
+      supabase.from('products').select('*').order('display_order', { ascending: true }),
       supabase.from('categories').select('*').order('display_order', { ascending: true })
     ]);
     
@@ -43,7 +43,8 @@ function Gallery() {
         description: item.description,
         mainCategory: item.main_category,
         subcategories: item.subcategories,
-        tags: item.tags
+        tags: item.tags,
+        display_order: item.display_order || 999
       }));
       setAllProducts(transformedProducts);
     }

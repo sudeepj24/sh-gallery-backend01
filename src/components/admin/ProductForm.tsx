@@ -176,7 +176,8 @@ export default function ProductForm({ categories, product, onClose, onSuccess }:
         description: formData.description,
         main_category: formData.main_category,
         subcategories: formData.subcategories,
-        tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
+        tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+        display_order: product?.display_order || 999
       };
 
       if (product) {

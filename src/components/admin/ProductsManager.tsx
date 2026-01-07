@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import ProductFilters from './ProductFilters';
 import ProductList from './ProductList';
 import ProductForm from './ProductForm';
+import { useViewMode } from '../../hooks/useViewMode';
 
 interface Product {
   id: string;
@@ -40,7 +41,7 @@ export default function ProductsManager({ categories, onCategoriesChange }: Prod
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState('created_at');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useViewMode('list');
   
   // Selection states
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());

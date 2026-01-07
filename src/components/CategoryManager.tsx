@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, Settings, GripVertical, Edit, Trash2, Filter, X, Save, List, ArrowLeftRight } from 'lucide-react';
-import BulkCategoryReorder from './admin/BulkCategoryReorder';
-import SwapPositions from './admin/SwapPositions';
+import { Plus, Edit, Trash2, X, Save } from 'lucide-react';
 
 interface Category {
   id: string;
@@ -28,29 +26,8 @@ interface CategoryManagerProps {
 }
 
 export default function CategoryManager({ categories, onSuccess }: CategoryManagerProps) {
-  const [activeSection, setActiveSection] = useState<'manage' | 'reorder'>('manage');
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [hasReorderChanges, setHasReorderChanges] = useState(false);
-  const [reorderMode, setReorderMode] = useState<'drag' | 'bulk' | 'swap'>('drag');
-
-  const handleSectionChange = (section: 'manage' | 'reorder') => {
-    // If switching from reorder to manage and changes were made, reload data
-    if (activeSection === 'reorder' && section === 'manage' && hasReorderChanges) {
-      onSuccess();
-      setHasReorderChanges(false);
-    }
-    setActiveSection(section);
-  };
-
-  useEffect(() => {
-    const handleCategoriesUpdate = () => {
-      onSuccess();
-    };
-
-    window.addEventListener('categoriesUpdated', handleCategoriesUpdate);
-    return () => window.removeEventListener('categoriesUpdated', handleCategoriesUpdate);
-  }, [onSuccess]);
 
   const deleteCategory = async (id: string) => {
     const categoryToDelete = categories.find(c => c.id === id);
@@ -103,71 +80,9 @@ export default function CategoryManager({ categories, onSuccess }: CategoryManag
       </div>
 
       {/* Section Tabs */}
-      <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
-        <button
-          onClick={() => handleSectionChange('manage')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-            activeSection === 'manage'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          <Settings size={16} className="inline mr-2" />
-          Manage Categories
-        </button>
-        <button
-          onClick={() => handleSectionChange('reorder')}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-            activeSection === 'reorder'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          <GripVertical size={16} className="inline mr-2" />
-          Reorder Categories
-        </button>
+      <div className="mb-6">
+        <p className="text-gray-600">Manage your product categories and their filter options.</p>
       </div>
-
-      {/* Reorder Mode Toggle */}
-      {activeSection === 'reorder' && (
-        <div className="flex justify-center mb-6">
-          <div className="flex bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setReorderMode('drag')}
-              className={`py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                reorderMode === 'drag'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <GripVertical size={16} className="inline mr-2" />
-              Drag & Drop
-            </button>
-            <button
-              onClick={() => setReorderMode('bulk')}
-              className={`py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                reorderMode === 'bulk'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <List size={16} className="inline mr-2" />
-              Bulk Reorder
-            </button>
-            <button
-              onClick={() => setReorderMode('swap')}
-              className={`py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                reorderMode === 'swap'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <ArrowLeftRight size={16} className="inline mr-2" />
-              Swap Positions
-            </button>
-          </div>
-        </div>
-      )}
 
       {categories.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg">
@@ -180,41 +95,11 @@ export default function CategoryManager({ categories, onSuccess }: CategoryManag
           </button>
         </div>
       ) : (
-        <div>
-          {activeSection === 'manage' && (
-            <CategoryManageSection 
-              categories={categories}
-              onEditCategory={setEditingCategory}
-              onDeleteCategory={deleteCategory}
-            />
-          )}
-          {activeSection === 'reorder' && (
-            <div>
-              {reorderMode === 'drag' ? (
-                <CategoryReorderSection 
-                  categories={categories} 
-                  onReorderChange={() => setHasReorderChanges(true)}
-                />
-              ) : reorderMode === 'bulk' ? (
-                <BulkCategoryReorder
-                  categories={categories}
-                  onSuccess={() => {
-                    setHasReorderChanges(true);
-                    onSuccess();
-                  }}
-                />
-              ) : (
-                <SwapPositions
-                  categories={categories}
-                  onSuccess={() => {
-                    setHasReorderChanges(true);
-                    onSuccess();
-                  }}
-                />
-              )}
-            </div>
-          )}
-        </div>
+        <CategoryManageSection 
+          categories={categories}
+          onEditCategory={setEditingCategory}
+          onDeleteCategory={deleteCategory}
+        />
       )}
 
       {/* Forms */}
@@ -314,118 +199,6 @@ function CategoryManageSection({ categories, onEditCategory, onDeleteCategory }:
             ))}
           </tbody>
         </table>
-      </div>
-    </div>
-  );
-}
-
-function CategoryReorderSection({ categories, onReorderChange }: { 
-  categories: Category[];
-  onReorderChange: () => void;
-}) {
-  const [draggedCategory, setDraggedCategory] = useState<Category | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-  const [localCategories, setLocalCategories] = useState(categories);
-
-  // Update local state when props change
-  useEffect(() => {
-    setLocalCategories(categories);
-  }, [categories]);
-
-  const handleDragStart = (e: React.DragEvent, category: Category) => {
-    setDraggedCategory(category);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverIndex(index);
-  };
-
-  const handleDragLeave = () => {
-    setDragOverIndex(null);
-  };
-
-  const handleDrop = async (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragOverIndex(null);
-    
-    if (!draggedCategory) return;
-    
-    const dragIndex = localCategories.findIndex(c => c.id === draggedCategory.id);
-    if (dragIndex === dropIndex) return;
-
-    // Update UI immediately
-    const newCategories = [...localCategories];
-    const [removed] = newCategories.splice(dragIndex, 1);
-    newCategories.splice(dropIndex, 0, removed);
-    setLocalCategories(newCategories);
-
-    // Update database in background
-    const updates = newCategories.map((category, index) => ({
-      id: category.id,
-      display_order: index + 1
-    }));
-
-    try {
-      for (const update of updates) {
-        await supabase
-          .from('categories')
-          .update({ display_order: update.display_order })
-          .eq('id', update.id);
-      }
-      
-      // Mark that changes were made
-      onReorderChange();
-    } catch (error) {
-      console.error('Error updating category order:', error);
-      alert('Failed to update category order');
-      // Revert UI on error
-      setLocalCategories(categories);
-    }
-    
-    setDraggedCategory(null);
-  };
-
-  return (
-    <div>
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-        <p className="text-sm text-blue-800">
-          💡 <strong>Drag & Drop:</strong> Drag categories to reorder them. The order here determines how they appear in your gallery.
-        </p>
-      </div>
-      
-      <div className="space-y-2">
-        {localCategories.map((category, index) => (
-          <div
-            key={category.id}
-            draggable
-            onDragStart={(e) => handleDragStart(e, category)}
-            onDragOver={(e) => handleDragOver(e, index)}
-            onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, index)}
-            className={`bg-white rounded-lg shadow p-4 transition-all duration-200 cursor-move border-2 ${
-              dragOverIndex === index ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
-            }`}
-          >
-            <div className="flex items-center gap-4">
-              <div className="flex items-center text-gray-400 hover:text-gray-600">
-                <GripVertical size={20} />
-              </div>
-              <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded font-mono">
-                #{index + 1}
-              </span>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900">{category.label}</h3>
-              </div>
-              <div className="text-sm text-gray-500">
-                {category.subcategories.length} filters
-              </div>
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );
@@ -539,7 +312,7 @@ function CategoryForm({ category, onClose, onSuccess }: {
       onClose();
     } catch (error) {
       console.error('Error saving category:', error);
-      alert(`Error saving category: ${error.message || 'Please try again.'}`);
+      alert(`Error saving category: ${error instanceof Error ? error.message : 'Please try again.'}`);
     } finally {
       setSaving(false);
     }

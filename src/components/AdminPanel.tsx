@@ -1,9 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, Package, Settings, ExternalLink } from 'lucide-react';
+import { LogOut, Package, Settings, ExternalLink, GripVertical, ArrowUpDown } from 'lucide-react';
 import ProductsManager from './admin/ProductsManager';
 import CategoryManager from './CategoryManager';
+import CategoryReorder from './CategoryReorder';
+import ProductReorder from './ProductReorder';
+import LoadingSpinner from './ui/LoadingSpinner';
+
+interface Product {
+  id: string;
+  product_id: string;
+  filename: string;
+  path: string;
+  product_name: string;
+  description: string;
+  main_category: string;
+  subcategories: Record<string, string>;
+  tags: string[];
+  display_order: number;
+  created_at: string;
+}
 
 interface Category {
   id: string;
@@ -14,33 +31,35 @@ interface Category {
 
 export default function AdminPanel() {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeTab, setActiveTab] = useState<'products' | 'categories'>('products');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [activeTab, setActiveTab] = useState<'products' | 'categories' | 'reorder-categories' | 'reorder-products'>('products');
   const [loading, setLoading] = useState(true);
   const { signOut } = useAuth();
 
   useEffect(() => {
-    loadCategories();
+    loadData();
   }, []);
 
-  const loadCategories = async () => {
+  const loadData = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('categories')
-      .select('*')
-      .order('display_order', { ascending: true });
+    const [categoriesRes, productsRes] = await Promise.all([
+      supabase.from('categories').select('*').order('display_order', { ascending: true }),
+      supabase.from('products').select('*').order('display_order', { ascending: true })
+    ]);
     
-    if (data) setCategories(data);
+    if (categoriesRes.data) setCategories(categoriesRes.data);
+    if (productsRes.data) setProducts(productsRes.data);
     setLoading(false);
   };
 
-  const handleTabChange = (tab: 'products' | 'categories') => {
+  const handleTabChange = (tab: 'products' | 'categories' | 'reorder-categories' | 'reorder-products') => {
     setActiveTab(tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (loading) return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-lg">Loading admin panel...</div>
+      <LoadingSpinner size="lg" text="Loading admin panel..." />
     </div>
   );
 
@@ -95,6 +114,32 @@ export default function AdminPanel() {
                   Categories & Filters
                 </button>
               </li>
+              <li>
+                <button
+                  onClick={() => handleTabChange('reorder-categories')}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                    activeTab === 'reorder-categories'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <GripVertical size={20} />
+                  Reorder Categories
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => handleTabChange('reorder-products')}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                    activeTab === 'reorder-products'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <ArrowUpDown size={20} />
+                  Reorder Products
+                </button>
+              </li>
             </ul>
           </nav>
 
@@ -117,14 +162,29 @@ export default function AdminPanel() {
               {activeTab === 'products' && (
                 <ProductsManager
                   categories={categories}
-                  onCategoriesChange={loadCategories}
+                  onCategoriesChange={loadData}
                 />
               )}
 
               {activeTab === 'categories' && (
                 <CategoryManager
                   categories={categories}
-                  onSuccess={loadCategories}
+                  onSuccess={loadData}
+                />
+              )}
+
+              {activeTab === 'reorder-categories' && (
+                <CategoryReorder
+                  categories={categories}
+                  onDataUpdate={setCategories}
+                />
+              )}
+
+              {activeTab === 'reorder-products' && (
+                <ProductReorder
+                  products={products}
+                  categories={categories}
+                  onDataUpdate={setProducts}
                 />
               )}
             </div>

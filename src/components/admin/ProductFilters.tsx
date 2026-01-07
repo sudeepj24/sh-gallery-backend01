@@ -111,16 +111,16 @@ export default function ProductFilters({
         {/* View Toggle */}
         <div className="flex border border-gray-300 rounded-lg overflow-hidden">
           <button
-            onClick={() => onViewModeChange('grid')}
-            className={`p-2 ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
-          >
-            <Grid size={16} />
-          </button>
-          <button
             onClick={() => onViewModeChange('list')}
             className={`p-2 ${viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
           >
             <List size={16} />
+          </button>
+          <button
+            onClick={() => onViewModeChange('grid')}
+            className={`p-2 ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+          >
+            <Grid size={16} />
           </button>
         </div>
       </div>
