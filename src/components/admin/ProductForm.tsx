@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { X, Save, Plus } from 'lucide-react';
+import { compressImage, CompressionProgress } from '../../utils/imageCompression';
+import ImageUploadProgress from '../ui/ImageUploadProgress';
 
 interface Product {
   id: string;
@@ -54,18 +56,40 @@ export default function ProductForm({ categories, product, onClose, onSuccess }:
   const [imagePreview, setImagePreview] = useState<string>(product?.path || '');
   const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
+  const [compressionProgress, setCompressionProgress] = useState<CompressionProgress>({ progress: 0, message: '' });
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionError, setCompressionError] = useState<string>('');
 
   const selectedCategory = categories.find(c => c.id === formData.main_category);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(selectedFile);
+    if (!selectedFile) return;
+
+    setIsCompressing(true);
+    setCompressionError('');
+    setFile(null);
+    setImagePreview('');
+
+    try {
+      const result = await compressImage(selectedFile, (progress) => {
+        setCompressionProgress(progress);
+      });
+
+      if (result.success && result.file) {
+        setFile(result.file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setImagePreview(e.target?.result as string);
+        };
+        reader.readAsDataURL(result.file);
+      } else {
+        setCompressionError(result.error || 'Failed to process image');
+      }
+    } catch (error) {
+      setCompressionError('Failed to process image. Please try again.');
+    } finally {
+      setIsCompressing(false);
     }
   };
 
@@ -127,7 +151,7 @@ export default function ProductForm({ categories, product, onClose, onSuccess }:
           }
         }
         
-        const fileExt = file.name.split('.').pop();
+        const fileExt = file.type === 'image/webp' ? 'webp' : 'jpg';
         const fileName = `${formData.main_category}/${Date.now()}.${fileExt}`;
 
         const { error: uploadError } = await supabase.storage
@@ -211,8 +235,21 @@ export default function ProductForm({ categories, product, onClose, onSuccess }:
                 accept="image/*"
                 onChange={handleFileChange}
                 required={!product}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                disabled={isCompressing || Boolean(compressionError)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 disabled:bg-gray-100"
               />
+              
+              <ImageUploadProgress 
+                progress={compressionProgress.progress}
+                message={compressionProgress.message}
+                show={isCompressing}
+              />
+              
+              {compressionError && (
+                <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-700">{compressionError}</p>
+                </div>
+              )}
             </div>
 
             {/* Product ID */}
@@ -358,7 +395,7 @@ export default function ProductForm({ categories, product, onClose, onSuccess }:
             <div className="flex gap-3 pt-4">
               <button
                 type="submit"
-                disabled={uploading}
+                disabled={uploading || isCompressing || (Boolean(compressionError) && !product)}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-lg flex items-center justify-center gap-2"
               >
                 <Save size={16} />
