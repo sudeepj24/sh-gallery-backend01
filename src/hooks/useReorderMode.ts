@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ReorderMode } from '../reorder/types';
 
-const STORAGE_KEY = 'reorder-mode';
-
-export function useReorderMode(defaultMode: ReorderMode = 'drag') {
+export function useReorderMode(context: string, defaultMode: ReorderMode = 'drag') {
+  const STORAGE_KEY = `reorder-mode-${context}`;
   const [reorderMode, setReorderModeState] = useState<ReorderMode>(defaultMode);
 
   // Load saved mode on mount
@@ -12,7 +11,7 @@ export function useReorderMode(defaultMode: ReorderMode = 'drag') {
     if (savedMode && ['drag', 'bulk', 'swap'].includes(savedMode)) {
       setReorderModeState(savedMode);
     }
-  }, []);
+  }, [STORAGE_KEY]);
 
   // Save mode to localStorage when it changes
   const setReorderMode = (mode: ReorderMode) => {

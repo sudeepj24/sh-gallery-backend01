@@ -114,6 +114,7 @@ export default function ProductReorder({ products, categories, onDataUpdate }: P
       onDataUpdate={onDataUpdate}
       renderItem={renderProductItem}
       filterComponent={filterComponent}
+      context="products"
     />
   );
 }

@@ -14,6 +14,7 @@ interface GenericReorderProps<T extends ReorderableItem> {
   onDataUpdate: (updatedItems: T[]) => void;
   renderItem?: (item: T, index: number) => React.ReactNode;
   filterComponent?: React.ReactNode;
+  context: string;
 }
 
 export default function GenericReorder<T extends ReorderableItem>({
@@ -21,9 +22,10 @@ export default function GenericReorder<T extends ReorderableItem>({
   config,
   onDataUpdate,
   renderItem,
-  filterComponent
+  filterComponent,
+  context
 }: GenericReorderProps<T>) {
-  const [reorderMode, setReorderMode] = useReorderMode('drag');
+  const [reorderMode, setReorderMode] = useReorderMode(context, 'drag');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSuccess = async () => {

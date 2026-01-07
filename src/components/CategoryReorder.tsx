@@ -56,6 +56,7 @@ export default function CategoryReorder({ categories, onDataUpdate }: CategoryRe
       config={config}
       onDataUpdate={onDataUpdate}
       renderItem={renderCategoryItem}
+      context="categories"
     />
   );
 }
