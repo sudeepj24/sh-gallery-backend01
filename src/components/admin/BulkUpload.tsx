@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import CategorySelection from './bulk-upload/CategorySelection';
 import ImageSelection from './bulk-upload/ImageSelection';
 import DefaultValues from './bulk-upload/DefaultValues';
 import ProductPreview from './bulk-upload/ProductPreview';
 import UploadProgress from './bulk-upload/UploadProgress';
-import ResultsModal from './bulk-upload/ResultsModal';
-import { BulkUploadState, UploadResult } from './bulk-upload/types';
+import SuccessModal from './bulk-upload/modals/SuccessModal';
+import FailureModal from './bulk-upload/modals/FailureModal';
+import MixedResultsModal from './bulk-upload/modals/MixedResultsModal';
+import { BulkUploadState } from './bulk-upload/types';
 import { RotateCcw } from 'lucide-react';
 
 interface Category {
@@ -21,6 +23,10 @@ interface BulkUploadProps {
 }
 
 export default function BulkUpload({ categories, onSuccess }: BulkUploadProps) {
+  const [showModal, setShowModal] = useState(false);
+  const [modalResults, setModalResults] = useState<{ successful: any[]; failed: any[] } | null>(null);
+  const hasShownModal = useRef(false);
+  
   const [state, setState] = useState<BulkUploadState>({
     step: 'category',
     selectedCategory: null,
@@ -34,9 +40,7 @@ export default function BulkUpload({ categories, onSuccess }: BulkUploadProps) {
       subcategories: {}
     },
     products: [],
-    isUploading: false,
-    uploadProgress: { current: 0, total: 0, currentItem: '' },
-    results: null
+    isUploading: false
   });
 
   const updateState = (updates: Partial<BulkUploadState>) => {
@@ -44,35 +48,68 @@ export default function BulkUpload({ categories, onSuccess }: BulkUploadProps) {
   };
 
   const handleNext = () => {
-    const steps = ['category', 'images', 'defaults', 'preview'] as const;
-    const currentIndex = steps.indexOf(state.step);
-    if (currentIndex < steps.length - 1) {
+    const steps: BulkUploadState['step'][] = ['category', 'images', 'defaults', 'preview'];
+    const currentIndex = steps.indexOf(state.step as any);
+    if (currentIndex >= 0 && currentIndex < steps.length - 1) {
       updateState({ step: steps[currentIndex + 1] });
     }
   };
 
   const handleBack = () => {
-    const steps = ['category', 'images', 'defaults', 'preview'] as const;
-    const currentIndex = steps.indexOf(state.step);
+    const steps: BulkUploadState['step'][] = ['category', 'images', 'defaults', 'preview'];
+    const currentIndex = steps.indexOf(state.step as any);
     if (currentIndex > 0) {
       updateState({ step: steps[currentIndex - 1] });
     }
   };
 
-  const handleUpload = async () => {
+  const handleUpload = () => {
     updateState({ isUploading: true, step: 'uploading' });
   };
 
-  const handleComplete = (results: UploadResult) => {
-    updateState({ 
-      isUploading: false, 
-      step: 'results', 
-      results,
-      uploadProgress: { current: 0, total: 0, currentItem: '' }
-    });
-    if (results.successful.length > 0) {
-      onSuccess();
+  const handleComplete = (results: { successful: any[]; failed: any[] }) => {
+    // Store results and show modal ONLY ONCE
+    if (!hasShownModal.current) {
+      hasShownModal.current = true;
+      setModalResults(results);
+      setShowModal(true);
+      
+      // Filter out successfully uploaded products and their files, keep only failed ones
+      if (results.failed.length > 0) {
+        const failedProductIds = new Set(results.failed.map(f => f.productId));
+        const remainingProducts = state.products.filter(p => failedProductIds.has(p.productId));
+        const remainingFiles = state.compressedFiles.filter((_, index) => {
+          const product = state.products[index];
+          return product && failedProductIds.has(product.productId);
+        });
+        
+        updateState({ 
+          isUploading: false, 
+          step: 'preview',
+          products: remainingProducts,
+          compressedFiles: remainingFiles
+        });
+      } else {
+        updateState({ 
+          isUploading: false, 
+          step: 'preview'
+        });
+      }
     }
+  };
+
+  const handleResultsClose = () => {
+    setShowModal(false);
+    setModalResults(null);
+    hasShownModal.current = false;
+    onSuccess();
+    resetFlow();
+  };
+
+  const getModalType = (results: { successful: any[]; failed: any[] }): 'success' | 'failure' | 'mixed' => {
+    if (results.successful.length === 0) return 'failure';
+    if (results.failed.length === 0) return 'success';
+    return 'mixed';
   };
 
   const resetFlow = () => {
@@ -89,9 +126,7 @@ export default function BulkUpload({ categories, onSuccess }: BulkUploadProps) {
         subcategories: {}
       },
       products: [],
-      isUploading: false,
-      uploadProgress: { current: 0, total: 0, currentItem: '' },
-      results: null
+      isUploading: false
     });
   };
 
@@ -199,20 +234,49 @@ export default function BulkUpload({ categories, onSuccess }: BulkUploadProps) {
       {state.step === 'uploading' && (
         <UploadProgress
           products={state.products}
-          progress={state.uploadProgress}
           onComplete={handleComplete}
-          onProgressUpdate={(progress) => updateState({ uploadProgress: progress })}
         />
       )}
 
-      {state.step === 'results' && state.results && (
-        <ResultsModal
-          results={state.results}
-          onClose={resetFlow}
-          onRetry={() => {
-            updateState({ step: 'preview' });
-          }}
-        />
+      {showModal && modalResults && (
+        <div>
+          {(() => {
+            const modalType = getModalType(modalResults);
+            if (modalType === 'success') {
+              return (
+                <SuccessModal
+                  results={modalResults}
+                  onClose={handleResultsClose}
+                />
+              );
+            } else if (modalType === 'failure') {
+              return (
+                <FailureModal
+                  results={modalResults}
+                  onClose={handleResultsClose}
+                  onRetry={() => {
+                    setShowModal(false);
+                    hasShownModal.current = false;
+                    updateState({ step: 'preview' });
+                  }}
+                />
+              );
+            } else {
+              return (
+                <MixedResultsModal
+                  results={modalResults}
+                  onClose={handleResultsClose}
+                  onRetry={() => {
+                    setShowModal(false);
+                    hasShownModal.current = false;
+                    updateState({ step: 'preview' });
+                  }}
+                />
+              );
+            }
+          })()
+          }
+        </div>
       )}
     </div>
   );

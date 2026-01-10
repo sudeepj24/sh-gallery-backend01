@@ -204,31 +204,41 @@ export default function ProductForm({ categories, product, onClose, onSuccess }:
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold">
-              {product ? 'Edit Product' : 'Add New Product'}
-            </h2>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white/95 backdrop-blur-md rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200/50 animate-slide-up">
+        <div className="p-8">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                {product ? 'Edit Product' : 'Add New Product'}
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">
+                {product ? 'Update product information' : 'Create a new product entry'}
+              </p>
+            </div>
+            <button 
+              onClick={onClose} 
+              className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-xl transition-all duration-200"
+            >
               <X size={24} />
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Image Upload */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-200/50">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
                 Product Image {!product && <span className="text-red-500">*</span>}
               </label>
               {imagePreview && (
                 <div className="mb-4">
-                  <img 
-                    src={imagePreview} 
-                    alt="Preview" 
-                    className="w-32 h-32 object-cover rounded-lg border"
-                  />
+                  <div className="w-40 h-40 rounded-2xl overflow-hidden border-2 border-gray-200 shadow-lg">
+                    <img 
+                      src={imagePreview} 
+                      alt="Preview" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 </div>
               )}
               <input
@@ -237,7 +247,7 @@ export default function ProductForm({ categories, product, onClose, onSuccess }:
                 onChange={handleFileChange}
                 required={!product}
                 disabled={isCompressing || Boolean(compressionError)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 disabled:bg-gray-100"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 disabled:bg-gray-100 bg-white/80 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
               
               <ImageUploadProgress 
@@ -247,51 +257,53 @@ export default function ProductForm({ categories, product, onClose, onSuccess }:
               />
               
               {compressionError && (
-                <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-700">{compressionError}</p>
+                <div className="mt-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+                  <p className="text-sm text-red-700 font-medium">{compressionError}</p>
                 </div>
               )}
             </div>
 
-            {/* Product ID */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Product ID <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.product_id}
-                onChange={(e) => setFormData({...formData, product_id: e.target.value})}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                placeholder="e.g., 001, 002"
-              />
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Product ID */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Product ID <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.product_id}
+                  onChange={(e) => setFormData({...formData, product_id: e.target.value})}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50/50 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  placeholder="e.g., 001, 002"
+                />
+              </div>
 
-            {/* Product Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Product Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.product_name}
-                onChange={(e) => setFormData({...formData, product_name: e.target.value})}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                placeholder="Enter product name"
-              />
+              {/* Product Name */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Product Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.product_name}
+                  onChange={(e) => setFormData({...formData, product_name: e.target.value})}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50/50 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Enter product name"
+                />
+              </div>
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Description
               </label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50/50 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
                 rows={3}
                 placeholder="Enter product description"
               />
@@ -299,25 +311,32 @@ export default function ProductForm({ categories, product, onClose, onSuccess }:
 
             {/* Category */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Main Category <span className="text-red-500">*</span>
               </label>
-              <div className="flex gap-2">
-                <select
-                  required
-                  value={formData.main_category}
-                  onChange={(e) => setFormData({...formData, main_category: e.target.value, subcategories: {}})}
-                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
-                >
-                  <option value="">Select a category</option>
-                  {categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.label}</option>
-                  ))}
-                </select>
+              <div className="flex gap-3">
+                <div className="flex-1 relative">
+                  <select
+                    required
+                    value={formData.main_category}
+                    onChange={(e) => setFormData({...formData, main_category: e.target.value, subcategories: {}})}
+                    className="w-full appearance-none border border-gray-200 rounded-xl px-4 py-3 pr-10 bg-gray-50/50 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  >
+                    <option value="">Select a category</option>
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.label}</option>
+                    ))}
+                  </select>
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
                 <button
                   type="button"
                   onClick={() => setShowNewCategoryForm(true)}
-                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg flex items-center gap-1"
+                  className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-3 rounded-xl flex items-center gap-2 font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
                   <Plus size={16} />
                   New
@@ -325,26 +344,26 @@ export default function ProductForm({ categories, product, onClose, onSuccess }:
               </div>
               
               {showNewCategoryForm && (
-                <div className="mt-2 p-3 border border-gray-200 rounded-lg bg-gray-50">
-                  <div className="flex gap-2">
+                <div className="mt-4 p-4 border border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-gray-100">
+                  <div className="flex gap-3">
                     <input
                       type="text"
                       value={newCategoryName}
                       onChange={(e) => setNewCategoryName(e.target.value)}
-                      className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm"
+                      className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
                       placeholder="New category name"
                     />
                     <button
                       type="button"
                       onClick={addNewCategory}
-                      className="bg-green-600 text-white px-3 py-1 rounded text-sm"
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors"
                     >
                       Add
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowNewCategoryForm(false)}
-                      className="text-gray-600 px-2"
+                      className="text-gray-600 hover:text-gray-800 px-2 rounded-xl hover:bg-white/50 transition-colors"
                     >
                       <X size={16} />
                     </button>
@@ -356,48 +375,55 @@ export default function ProductForm({ categories, product, onClose, onSuccess }:
             {/* Subcategories/Filters */}
             {selectedCategory?.subcategories.map(subcat => (
               <div key={subcat.id}>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   {subcat.label}
                 </label>
-                <select
-                  value={formData.subcategories[subcat.id] || ''}
-                  onChange={(e) => setFormData({
-                    ...formData, 
-                    subcategories: {
-                      ...formData.subcategories,
-                      [subcat.id]: e.target.value
-                    }
-                  })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                >
-                  <option value="">Select {subcat.label.toLowerCase()}</option>
-                  {subcat.options.map(option => (
-                    <option key={option.id} value={option.id}>{option.label}</option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={formData.subcategories[subcat.id] || ''}
+                    onChange={(e) => setFormData({
+                      ...formData, 
+                      subcategories: {
+                        ...formData.subcategories,
+                        [subcat.id]: e.target.value
+                      }
+                    })}
+                    className="w-full appearance-none border border-gray-200 rounded-xl px-4 py-3 pr-10 bg-gray-50/50 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  >
+                    <option value="">Select {subcat.label.toLowerCase()}</option>
+                    {subcat.options.map(option => (
+                      <option key={option.id} value={option.id}>{option.label}</option>
+                    ))}
+                  </select>
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
               </div>
             ))}
 
             {/* Tags */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Tags
               </label>
               <input
                 type="text"
                 value={formData.tags}
                 onChange={(e) => setFormData({...formData, tags: e.target.value})}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50/50 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                 placeholder="security, residential, modern (comma separated)"
               />
             </div>
 
             {/* Form Actions */}
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-4 pt-6 border-t border-gray-200">
               <button
                 type="submit"
                 disabled={uploading || isCompressing || (Boolean(compressionError) && !product)}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-lg flex items-center justify-center gap-2"
+                className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-blue-400 disabled:to-indigo-400 text-white py-3 rounded-xl flex items-center justify-center gap-2 font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none disabled:shadow-lg"
               >
                 <Save size={16} />
                 {uploading ? 'Saving...' : (product ? 'Update Product' : 'Add Product')}
@@ -405,7 +431,7 @@ export default function ProductForm({ categories, product, onClose, onSuccess }:
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-8 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 font-medium transition-all duration-200 hover:shadow-md"
               >
                 Cancel
               </button>

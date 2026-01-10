@@ -233,6 +233,9 @@ export default function ProductsManager({ categories, onCategoriesChange }: Prod
         onAddProduct={() => setShowAddForm(true)}
         selectedProducts={selectedProducts}
         onBulkDelete={bulkDeleteProducts}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
       />
 
       <ProductList
@@ -241,9 +244,6 @@ export default function ProductsManager({ categories, onCategoriesChange }: Prod
         categories={categories}
         onEditProduct={setEditingProduct}
         onDeleteProduct={deleteProduct}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
         selectedProducts={selectedProducts}
         onProductSelect={(productId, selected) => {
           const newSelected = new Set(selectedProducts);

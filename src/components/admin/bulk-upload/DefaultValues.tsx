@@ -47,8 +47,7 @@ export default function DefaultValues({
     try {
       const { data } = await supabase
         .from('products')
-        .select('product_id')
-        .eq('main_category', category.id);
+        .select('product_id');
 
       if (data) {
         const numbers = data
@@ -83,7 +82,6 @@ export default function DefaultValues({
       const { data } = await supabase
         .from('products')
         .select('product_id')
-        .eq('main_category', category.id)
         .in('product_id', proposedIds);
 
       if (data) {
@@ -128,11 +126,10 @@ export default function DefaultValues({
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-medium">Default Values</h3>
 
       {/* Product ID Strategy */}
       <div>
-        <h4 className="font-medium mb-3">Product ID Strategy</h4>
+        <h4 className="font-medium mb-3">Product ID</h4>
         <div className="grid grid-cols-2 gap-4">
           <div className={`border-2 rounded-lg p-4 cursor-pointer ${
             idStrategy === 'sequential' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'

@@ -1,5 +1,5 @@
 export interface BulkUploadState {
-  step: 'category' | 'images' | 'defaults' | 'preview' | 'uploading' | 'results';
+  step: 'category' | 'images' | 'defaults' | 'preview' | 'uploading';
   selectedCategory: Category | null;
   selectedFiles: File[];
   compressedFiles: CompressedFile[];
@@ -8,8 +8,6 @@ export interface BulkUploadState {
   bulkMetadata: BulkMetadata;
   products: BulkProduct[];
   isUploading: boolean;
-  uploadProgress: UploadProgress;
-  results: UploadResult | null;
 }
 
 export interface Category {
@@ -52,14 +50,6 @@ export interface BulkProduct {
   subcategories: Record<string, string>;
   categoryId: string;
   file: CompressedFile;
-  hasError?: boolean;
-  errorMessage?: string;
-}
-
-export interface UploadProgress {
-  current: number;
-  total: number;
-  currentItem: string;
 }
 
 export interface UploadResult {
@@ -78,12 +68,4 @@ export interface FailedUpload {
   productName: string;
   error: string;
   file?: CompressedFile;
-}
-
-export interface IdConflict {
-  productId: string;
-  existingProduct?: {
-    id: string;
-    product_name: string;
-  };
 }

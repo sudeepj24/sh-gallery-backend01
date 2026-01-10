@@ -219,8 +219,8 @@ function CategoryForm({ category, onClose, onSuccess }: {
     setFormData({
       ...formData,
       subcategories: [
-        ...formData.subcategories,
-        { id: '', label: '', options: [] }
+        { id: '', label: '', options: [] },
+        ...formData.subcategories
       ]
     });
   };

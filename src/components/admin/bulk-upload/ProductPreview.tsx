@@ -32,11 +32,19 @@ export default function ProductPreview({
   const [validating, setValidating] = useState(false);
 
   useEffect(() => {
-    generateProducts();
+    // Only regenerate if products don't match files (not a retry scenario)
+    if (products.length === 0 || products.length !== files.length) {
+      generateProducts();
+    }
   }, [files, idStrategy, startingNumber, bulkMetadata, category]);
 
   const generateProducts = async () => {
     if (files.length === 0) return;
+    
+    // Skip regeneration if we already have products (retry scenario)
+    if (products.length > 0 && products.length === files.length) {
+      return;
+    }
 
     setValidating(true);
     
@@ -81,39 +89,15 @@ export default function ProductPreview({
   };
 
   const validateProducts = async (productsToValidate: BulkProduct[]) => {
-    const productIds = productsToValidate.map(p => p.productId);
-    
-    try {
-      const { data } = await supabase
-        .from('products')
-        .select('product_id, product_name')
-        .eq('main_category', category.id)
-        .in('product_id', productIds);
-
-      const conflicts = data || [];
-      
-      const updatedProducts = productsToValidate.map(product => {
-        const conflict = conflicts.find(c => c.product_id === product.productId);
-        return {
-          ...product,
-          hasError: !!conflict,
-          errorMessage: conflict ? `ID already exists` : undefined
-        };
-      });
-
-      onProductUpdate(updatedProducts);
-    } catch (error) {
-      console.error('Error validating products:', error);
-    }
+    // Validation removed - database will handle duplicates during upload
+    onProductUpdate(productsToValidate);
   };
 
   const updateProduct = (productId: string, field: string, value: any) => {
     const updatedProducts = products.map(p => 
       p.id === productId ? { 
         ...p, 
-        [field]: field === 'tags' ? value.split(',').map((tag: string) => tag.trim()).filter(Boolean) : value,
-        hasError: false, 
-        errorMessage: undefined 
+        [field]: field === 'tags' ? value.split(',').map((tag: string) => tag.trim()).filter(Boolean) : value
       } : p
     );
     onProductUpdate(updatedProducts);
@@ -130,8 +114,7 @@ export default function ProductPreview({
     onProductUpdate(updatedProducts);
   };
 
-  const hasErrors = products.some(p => p.hasError);
-  const canUpload = products.length > 0 && !hasErrors && !validating;
+  const canUpload = products.length > 0 && !validating;
 
   if (validating) {
     return (
@@ -163,7 +146,7 @@ export default function ProductPreview({
             </thead>
             <tbody>
               {products.map((product) => (
-                <tr key={product.id} className={`border-b hover:bg-gray-50 ${product.hasError ? 'bg-red-50' : ''}`}>
+                <tr key={product.id} className="border-b hover:bg-gray-50">
                   <td className="py-3 px-4">
                     <img
                       src={product.file.preview}
@@ -178,13 +161,10 @@ export default function ProductPreview({
                         value={product.productId}
                         onChange={(e) => updateProduct(product.id, 'productId', e.target.value)}
                         className="w-20 border border-gray-300 rounded px-2 py-1 text-sm"
-                        onBlur={() => setEditingProduct(null)}
-                        autoFocus
                       />
                     ) : (
-                      <span className={`font-mono text-sm ${product.hasError ? 'text-red-600' : ''}`}>
+                      <span className="font-mono text-sm">
                         {product.productId}
-                        {product.hasError && <div className="text-xs text-red-600">{product.errorMessage}</div>}
                       </span>
                     )}
                   </td>
@@ -195,7 +175,6 @@ export default function ProductPreview({
                         value={product.productName}
                         onChange={(e) => updateProduct(product.id, 'productName', e.target.value)}
                         className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                        onBlur={() => setEditingProduct(null)}
                       />
                     ) : (
                       <span className="text-sm">{product.productName}</span>
@@ -208,7 +187,6 @@ export default function ProductPreview({
                         onChange={(e) => updateProduct(product.id, 'description', e.target.value)}
                         className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
                         rows={2}
-                        onBlur={() => setEditingProduct(null)}
                       />
                     ) : (
                       <span className="text-sm text-gray-600">{product.description || '-'}</span>
@@ -222,7 +200,6 @@ export default function ProductPreview({
                         onChange={(e) => updateProduct(product.id, 'tags', e.target.value)}
                         className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
                         placeholder="tag1, tag2"
-                        onBlur={() => setEditingProduct(null)}
                       />
                     ) : (
                       <div className="flex flex-wrap gap-1">
@@ -244,7 +221,6 @@ export default function ProductPreview({
                           value={product.subcategories[subcat.id] || ''}
                           onChange={(e) => updateSubcategory(product.id, subcat.id, e.target.value)}
                           className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                          onBlur={() => setEditingProduct(null)}
                         >
                           <option value="">Select</option>
                           {subcat.options.map(option => (
@@ -263,9 +239,9 @@ export default function ProductPreview({
                   ))}
                   <td className="py-3 px-4 text-center">
                     <button
-                      onClick={() => setEditingProduct(product.id)}
-                      className="text-gray-600 hover:text-gray-800 p-1"
-                      title="Edit product"
+                      onClick={() => setEditingProduct(editingProduct === product.id ? null : product.id)}
+                      className={`p-1 ${editingProduct === product.id ? 'text-green-600 hover:text-green-800' : 'text-gray-600 hover:text-gray-800'}`}
+                      title={editingProduct === product.id ? 'Done editing' : 'Edit product'}
                     >
                       <Edit3 size={16} />
                     </button>
