@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, Package, Settings, ExternalLink, GripVertical, ArrowUpDown } from 'lucide-react';
+import { LogOut, Package, Settings, ExternalLink, GripVertical, ArrowUpDown, Upload } from 'lucide-react';
 import ProductsManager from './admin/ProductsManager';
+import BulkUpload from './admin/BulkUpload';
 import CategoryManager from './CategoryManager';
 import CategoryReorder from './CategoryReorder';
 import ProductReorder from './ProductReorder';
@@ -32,7 +33,7 @@ interface Category {
 export default function AdminPanel() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [activeTab, setActiveTab] = useState<'products' | 'categories' | 'reorder-categories' | 'reorder-products'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'bulk-upload' | 'categories' | 'reorder-categories' | 'reorder-products'>('products');
   const [loading, setLoading] = useState(true);
   const { signOut } = useAuth();
 
@@ -52,7 +53,7 @@ export default function AdminPanel() {
     setLoading(false);
   };
 
-  const handleTabChange = (tab: 'products' | 'categories' | 'reorder-categories' | 'reorder-products') => {
+  const handleTabChange = (tab: 'products' | 'bulk-upload' | 'categories' | 'reorder-categories' | 'reorder-products') => {
     setActiveTab(tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -99,6 +100,19 @@ export default function AdminPanel() {
                 >
                   <Package size={20} />
                   Products
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => handleTabChange('bulk-upload')}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                    activeTab === 'bulk-upload'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <Upload size={20} />
+                  Bulk Upload
                 </button>
               </li>
               <li>
@@ -163,6 +177,13 @@ export default function AdminPanel() {
                 <ProductsManager
                   categories={categories}
                   onCategoriesChange={loadData}
+                />
+              )}
+
+              {activeTab === 'bulk-upload' && (
+                <BulkUpload
+                  categories={categories}
+                  onSuccess={loadData}
                 />
               )}
 

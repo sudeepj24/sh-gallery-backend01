@@ -29,18 +29,18 @@ export default function MobileHeader({
   };
 
   return (
-    <div className="lg:hidden sticky top-0 z-30 bg-gradient-to-r from-slate-900 to-blue-900 border-b border-slate-700 shadow-lg">
+    <div className="lg:hidden sticky top-0 z-30 bg-gradient-to-r from-[#847B73] to-[#6B635C] border-b border-[#6B635C] shadow-lg">
       <div className="px-2 pt-2 pb-0">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-xl font-bold text-white">Secure House Gallery</h1>
             <p className="text-sm text-slate-300">
-              <span className="text-blue-300 font-semibold">{productCount}</span> of <span className="text-blue-300 font-semibold">{totalCount}</span> products
+              <span className="text-[#D4C4B0] font-semibold">{productCount}</span> of <span className="text-[#D4C4B0] font-semibold">{totalCount}</span> products
             </p>
           </div>
           <button
             onClick={onOpenFilters}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-md"
+            className="flex items-center gap-2 px-4 py-2 bg-[#A0947F] text-white rounded-lg font-medium hover:bg-[#8B7F6F] transition-colors shadow-md"
           >
             <Filter className="w-4 h-4" />
             Filters
@@ -48,7 +48,7 @@ export default function MobileHeader({
         </div>
 
         <div>
-          <h3 className="text-sm font-medium text-slate-200 mb-2">Product Type</h3>
+          <h3 className="text-sm font-medium text-[#F5F1ED] mb-2">Product Type</h3>
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {categories.map(category => (
               <button
@@ -56,8 +56,8 @@ export default function MobileHeader({
                 onClick={() => handleMainCategoryClick(category.id)}
                 className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                   filters.mainCategory === category.id
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'bg-white/90 text-slate-700 hover:bg-white hover:shadow-sm'
+                    ? 'bg-[#A0947F] text-white shadow-md'
+                    : 'bg-white/90 text-[#5A524A] hover:bg-white hover:shadow-sm'
                 }`}
               >
                 {category.label}
