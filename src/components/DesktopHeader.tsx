@@ -48,8 +48,8 @@ export default function DesktopHeader({ filters, onFilterChange, productCount, t
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-[#F5F1ED] mb-2">
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-medium text-[#F5F1ED] whitespace-nowrap">
             Product Type
           </label>
           <div className="flex flex-wrap gap-2">
