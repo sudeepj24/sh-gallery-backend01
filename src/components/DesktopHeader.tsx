@@ -1,3 +1,4 @@
+import { Search } from 'lucide-react';
 import { MainCategory, FilterState } from '../config/categories';
 
 interface DesktopHeaderProps {
@@ -11,20 +12,39 @@ interface DesktopHeaderProps {
 export default function DesktopHeader({ filters, onFilterChange, productCount, totalCount, categories }: DesktopHeaderProps) {
   const handleMainCategoryClick = (categoryId: string) => {
     if (filters.mainCategory === categoryId) {
-      onFilterChange({ mainCategory: null, subcategoryFilters: {} });
+      onFilterChange({ ...filters, mainCategory: null, subcategoryFilters: {} });
     } else {
-      onFilterChange({ mainCategory: categoryId, subcategoryFilters: {} });
+      onFilterChange({ ...filters, mainCategory: categoryId, subcategoryFilters: {} });
     }
   };
 
   return (
-    <div className="bg-gradient-to-r from-[#847B73] to-[#6B635C] border-b border-[#6B635C] fixed top-0 left-0 right-0 z-40 shadow-lg">
+    <div className="bg-[#847B73] border-b border-[#6B635C] fixed top-0 left-0 right-0 z-40 shadow-lg">
       <div className="px-6 py-4">
-        <div className="relative flex items-center justify-end mb-4">
-          <h1 className="absolute left-1/2 transform -translate-x-1/2 text-2xl font-bold text-white">Secure House Products Gallery</h1>
-          <div className="text-sm text-slate-300">
-            Showing <span className="font-semibold text-[#D4C4B0]">{productCount}</span> of{' '}
-            <span className="font-semibold text-[#D4C4B0]">{totalCount}</span> products
+        <div className="flex items-center gap-6 mb-4">
+          <div className="flex items-center gap-3">
+            <img src="/logo.webp" alt="Secure House" className="h-12 w-auto" />
+            <h1 className="text-2xl font-bold text-white tracking-tight font-serif ml-64">Secure House Products Gallery</h1>
+          </div>
+          
+          <div className="flex-1 flex items-center justify-end gap-6">
+            <div className="relative w-96">
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                <Search size={16} />
+              </div>
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={filters.searchTerm || ''}
+                onChange={(e) => onFilterChange({ ...filters, searchTerm: e.target.value })}
+                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#A0947F] focus:border-transparent bg-white text-sm shadow-sm"
+              />
+            </div>
+            
+            <div className="text-sm text-white font-medium whitespace-nowrap bg-[#6B635C]/50 px-4 py-2 rounded-lg">
+              Showing <span className="text-[#FFD700] font-bold">{productCount}</span> of{' '}
+              <span className="text-[#FFD700] font-bold">{totalCount}</span> products
+            </div>
           </div>
         </div>
 

@@ -4,16 +4,18 @@ import { FilterState } from '../config/categories';
 export function useFilters() {
   const [filters, setFilters] = useState<FilterState>({
     mainCategory: null,
-    subcategoryFilters: {}
+    subcategoryFilters: {},
+    searchTerm: ''
   });
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const mainCategory = params.get('category');
+    const searchTerm = params.get('search') || '';
     const subcategoryFilters: Record<string, string[]> = {};
 
     params.forEach((value, key) => {
-      if (key !== 'category' && key.startsWith('filter_')) {
+      if (key !== 'category' && key !== 'search' && key.startsWith('filter_')) {
         const filterKey = key.replace('filter_', '');
         subcategoryFilters[filterKey] = value.split(',').filter(Boolean);
       }
@@ -21,7 +23,8 @@ export function useFilters() {
 
     setFilters({
       mainCategory,
-      subcategoryFilters
+      subcategoryFilters,
+      searchTerm
     });
   }, []);
 
@@ -32,6 +35,10 @@ export function useFilters() {
 
     if (newFilters.mainCategory) {
       params.set('category', newFilters.mainCategory);
+    }
+
+    if (newFilters.searchTerm) {
+      params.set('search', newFilters.searchTerm);
     }
 
     Object.entries(newFilters.subcategoryFilters).forEach(([key, values]) => {

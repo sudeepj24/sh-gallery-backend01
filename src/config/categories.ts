@@ -42,4 +42,5 @@ export interface Product {
 export interface FilterState {
   mainCategory: string | null;
   subcategoryFilters: Record<string, string[]>;
+  searchTerm?: string;
 }

@@ -70,9 +70,7 @@ export default function AdminPanel() {
       <div className="fixed top-0 left-0 right-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 shadow-xl border-b border-blue-200/30 z-30">
         <div className="flex items-center justify-between px-8 py-4">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Package className="text-white" size={20} />
-            </div>
+            <img src="/logo.webp" alt="Secure House" className="h-10 w-auto" />
             <div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-blue-900 to-indigo-800 bg-clip-text text-transparent">Admin Panel</h1>
             </div>
