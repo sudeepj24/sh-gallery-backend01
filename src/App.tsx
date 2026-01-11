@@ -28,32 +28,37 @@ function Gallery() {
   }, []);
 
   const loadData = async () => {
-    const [productsRes, categoriesRes] = await Promise.all([
-      supabase.from('products').select('*').order('display_order', { ascending: true }),
-      supabase.from('categories').select('*').order('display_order', { ascending: true })
-    ]);
-    
-    if (productsRes.data) {
-      // Transform Supabase data to match existing Product interface
-      const transformedProducts = productsRes.data.map(item => ({
-        id: item.product_id || item.id, // Use product_id if available, fallback to database id
-        filename: item.filename,
-        path: item.path,
-        productName: item.product_name,
-        description: item.description,
-        mainCategory: item.main_category,
-        subcategories: item.subcategories,
-        tags: item.tags,
-        display_order: item.display_order || 999
-      }));
-      setAllProducts(transformedProducts);
+    setLoading(true);
+    try {
+      const [productsRes, categoriesRes] = await Promise.all([
+        supabase.from('products').select('*').order('display_order', { ascending: true }),
+        supabase.from('categories').select('*').order('display_order', { ascending: true })
+      ]);
+      
+      if (productsRes.data) {
+        // Transform Supabase data to match existing Product interface
+        const transformedProducts = productsRes.data.map(item => ({
+          id: item.product_id || item.id, // Use product_id if available, fallback to database id
+          filename: item.filename,
+          path: item.path,
+          productName: item.product_name,
+          description: item.description,
+          mainCategory: item.main_category,
+          subcategories: item.subcategories,
+          tags: item.tags,
+          display_order: item.display_order || 999
+        }));
+        setAllProducts(transformedProducts);
+      }
+      
+      if (categoriesRes.data) {
+        setCategories(categoriesRes.data);
+      }
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
     }
-    
-    if (categoriesRes.data) {
-      setCategories(categoriesRes.data);
-    }
-    
-    setLoading(false);
   };
 
   const filteredProducts = filterProducts(allProducts, filters);

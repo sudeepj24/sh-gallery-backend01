@@ -246,7 +246,7 @@ export default function AdminPanel() {
         {/* Main Content */}
         <div className="flex-1 ml-72 flex flex-col">
           <div className="flex-1">
-            <div className="pt-8 px-10 pb-24">
+            <div className="pt-4 px-10 pb-6">
               {activeTab === 'products' && (
                 <ProductsManager
                   categories={categories}

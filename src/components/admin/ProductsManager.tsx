@@ -263,6 +263,90 @@ export default function ProductsManager({ categories, onCategoriesChange }: Prod
         }}
       />
 
+      {/* Bottom Pagination */}
+      {totalPages > 1 && (
+        <div className="bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-gray-200/50 flex justify-center">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 flex items-center gap-3">
+            <div className="text-sm font-medium text-gray-700">
+              Page {currentPage} of {totalPages}
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                className="p-1.5 border border-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-all duration-200 text-xs"
+                title="First page"
+              >
+                ««
+              </button>
+              <button
+                onClick={() => setCurrentPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="p-1.5 border border-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-all duration-200"
+                title="Previous page"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              
+              {totalPages > 10 ? (
+                <input
+                  type="number"
+                  min="1"
+                  max={totalPages}
+                  value={currentPage}
+                  onChange={(e) => {
+                    const page = parseInt(e.target.value);
+                    if (page >= 1 && page <= totalPages) {
+                      setCurrentPage(page);
+                    }
+                  }}
+                  className="w-16 px-2 py-1 text-sm border border-gray-200 rounded text-center focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+                />
+              ) : (
+                Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  const page = i + Math.max(1, currentPage - 2);
+                  if (page > totalPages) return null;
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-2 py-1 text-sm border rounded transition-all duration-200 ${
+                        page === currentPage
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                })
+              )}
+              
+              <button
+                onClick={() => setCurrentPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="p-1.5 border border-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-all duration-200"
+                title="Next page"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                className="p-1.5 border border-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-all duration-200 text-xs"
+                title="Last page"
+              >
+                »»
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Forms */}
       {showAddForm && (
         <ProductForm

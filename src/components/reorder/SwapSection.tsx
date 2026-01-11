@@ -88,19 +88,19 @@ export default function SwapSection<T extends ReorderableItem>({
               className="w-full border border-gray-300 rounded-lg px-3 py-2"
             >
               <option value="">Choose item to move...</option>
-              {items.map((item) => (
+              {items.map((item, index) => (
                 <option 
                   key={String(item[config.idField])} 
                   value={String(item[config.idField])}
                   disabled={String(item[config.idField]) === secondItemId}
                 >
-                  #{item[config.orderField]} - {String(item[config.displayField])}
+                  #{index + 1} - {String(item[config.displayField])}
                 </option>
               ))}
             </select>
             {firstItemId && (
               <p className="text-sm text-gray-600 mt-1">
-                Currently at position #{getItemPosition(firstItemId)}
+                Currently at position #{items.findIndex(item => String(item[config.idField]) === firstItemId) + 1}
               </p>
             )}
           </div>
@@ -115,19 +115,19 @@ export default function SwapSection<T extends ReorderableItem>({
               className="w-full border border-gray-300 rounded-lg px-3 py-2"
             >
               <option value="">Choose item to swap with...</option>
-              {items.map((item) => (
+              {items.map((item, index) => (
                 <option 
                   key={String(item[config.idField])} 
                   value={String(item[config.idField])}
                   disabled={String(item[config.idField]) === firstItemId}
                 >
-                  #{item[config.orderField]} - {String(item[config.displayField])}
+                  #{index + 1} - {String(item[config.displayField])}
                 </option>
               ))}
             </select>
             {secondItemId && (
               <p className="text-sm text-gray-600 mt-1">
-                Currently at position #{getItemPosition(secondItemId)}
+                Currently at position #{items.findIndex(item => String(item[config.idField]) === secondItemId) + 1}
               </p>
             )}
           </div>
