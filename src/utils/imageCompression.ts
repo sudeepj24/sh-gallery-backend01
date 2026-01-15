@@ -1,4 +1,5 @@
 import imageCompression from 'browser-image-compression';
+import heic2any from 'heic2any';
 
 export interface CompressionProgress {
   progress: number;
@@ -17,11 +18,34 @@ export const compressImage = async (
 ): Promise<CompressionResult> => {
   try {
     // Validate file type
-    if (!file.type.startsWith('image/')) {
+    const isHeic = file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif') || file.type === 'image/heic' || file.type === 'image/heif';
+    if (!file.type.startsWith('image/') && !isHeic) {
       return { success: false, error: 'Please select a valid image file.' };
     }
 
-    onProgress?.({ progress: 10, message: 'Processing image...' });
+    onProgress?.({ progress: 5, message: 'Processing image...' });
+
+    // Convert HEIC to JPEG if needed
+    let processFile = file;
+    if (isHeic) {
+      try {
+        onProgress?.({ progress: 10, message: 'Converting HEIC format...' });
+        const convertedBlob = await heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: 0.9
+        }) as Blob;
+        processFile = new File([convertedBlob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), {
+          type: 'image/jpeg'
+        });
+        onProgress?.({ progress: 20, message: 'HEIC converted successfully...' });
+      } catch (heicError) {
+        console.error('HEIC conversion error:', heicError);
+        return { success: false, error: 'Failed to convert HEIC image. Please try a different format.' };
+      }
+    }
+
+    onProgress?.({ progress: 25, message: 'Processing image...' });
 
     // Primary compression options (WebP)
     const webpOptions = {
@@ -38,13 +62,13 @@ export const compressImage = async (
       }
     };
 
-    onProgress?.({ progress: 20, message: 'Processing image...' });
+    onProgress?.({ progress: 30, message: 'Processing image...' });
 
     let compressedFile: File;
     
     try {
       // Try WebP compression first
-      compressedFile = await imageCompression(file, webpOptions);
+      compressedFile = await imageCompression(processFile, webpOptions);
       
       // If still too large, try with reduced quality
       if (compressedFile.size > 250 * 1024) {
@@ -77,7 +101,7 @@ export const compressImage = async (
         }
       };
       
-      compressedFile = await imageCompression(file, jpegOptions);
+      compressedFile = await imageCompression(processFile, jpegOptions);
     }
 
     // Final size check and emergency compression

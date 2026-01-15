@@ -97,7 +97,7 @@ export default function ImageSelection({
         <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
         <div className="space-y-2">
           <p className="text-lg font-medium text-gray-700">Drop images here or click to browse</p>
-          <p className="text-sm text-gray-500">Supports JPG, PNG, WebP formats</p>
+          <p className="text-sm text-gray-500">Supports JPG, PNG, WebP, HEIC formats</p>
         </div>
         <label className="absolute inset-0 cursor-pointer">
           <input
