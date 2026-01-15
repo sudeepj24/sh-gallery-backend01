@@ -38,8 +38,9 @@ export default function MobileHeader({
             </a>
             <div>
               <h1 className="text-xl font-bold text-white">Secure House Gallery</h1>
-              <p className="text-sm text-slate-300">
-                <span className="text-[#D4C4B0] font-semibold">{productCount}</span> of <span className="text-[#D4C4B0] font-semibold">{totalCount}</span> products
+              <p className="text-sm text-white font-medium">
+                <span className="text-[#FFD700] font-bold">{productCount}</span> of{' '}
+                <span className="text-[#FFD700] font-bold">{totalCount}</span> products
               </p>
             </div>
           </div>
