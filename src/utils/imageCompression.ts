@@ -39,9 +39,16 @@ export const compressImage = async (
           type: 'image/jpeg'
         });
         onProgress?.({ progress: 20, message: 'HEIC converted successfully...' });
-      } catch (heicError) {
-        console.error('HEIC conversion error:', heicError);
-        return { success: false, error: 'Failed to convert HEIC image. Please try a different format.' };
+      } catch (heicError: any) {
+        // If file is already browser-readable (e.g., JPEG with .heic extension), skip conversion
+        if (heicError?.code === 1 && heicError?.message?.includes('already browser readable')) {
+          // Create new file with proper MIME type
+          processFile = new File([file], file.name.replace(/\.(heic|heif)$/i, '.jpg'), {
+            type: 'image/jpeg'
+          });
+        } else {
+          return { success: false, error: 'Failed to convert HEIC image. Please try a different format.' };
+        }
       }
     }
 
@@ -80,7 +87,7 @@ export const compressImage = async (
           maxWidthOrHeight: 1100
         };
         
-        compressedFile = await imageCompression(file, reducedOptions);
+        compressedFile = await imageCompression(processFile, reducedOptions);
       }
       
     } catch (webpError) {
@@ -116,7 +123,7 @@ export const compressImage = async (
         initialQuality: 0.6
       };
       
-      compressedFile = await imageCompression(file, emergencyOptions);
+      compressedFile = await imageCompression(processFile, emergencyOptions);
     }
 
     onProgress?.({ progress: 100, message: 'Image ready!' });
@@ -132,7 +139,6 @@ export const compressImage = async (
     return { success: true, file: compressedFile };
 
   } catch (error) {
-    console.error('Image compression error:', error);
     return { 
       success: false, 
       error: 'Failed to process image. Please try a different image.' 
