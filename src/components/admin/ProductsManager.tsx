@@ -34,6 +34,7 @@ export default function ProductsManager({ categories, onCategoriesChange }: Prod
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   
@@ -162,6 +163,7 @@ export default function ProductsManager({ categories, onCategoriesChange }: Prod
     
     if (!confirmed) return;
     
+    setDeleting(true);
     try {
       // Delete from database first
       const { error: dbError } = await supabase
@@ -201,6 +203,8 @@ export default function ProductsManager({ categories, onCategoriesChange }: Prod
     } catch (error) {
       console.error('Error deleting products:', error);
       alert('Error deleting products. Please try again.');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -219,6 +223,16 @@ export default function ProductsManager({ categories, onCategoriesChange }: Prod
 
   return (
     <div className="space-y-6">
+      {deleting && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center gap-4">
+            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-lg font-semibold text-gray-900">Deleting products...</p>
+            <p className="text-sm text-gray-600">Please wait</p>
+          </div>
+        </div>
+      )}
+      
       <ProductFilters
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}

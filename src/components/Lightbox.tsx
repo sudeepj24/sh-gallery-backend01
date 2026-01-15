@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
-import { Product } from '../config/categories';
+import { Product, MainCategory } from '../config/categories';
 
 interface LightboxProps {
   product: Product;
   allProducts: Product[];
   onClose: () => void;
   onNavigate: (product: Product) => void;
+  categories: MainCategory[];
 }
 
-export default function Lightbox({ product, allProducts, onClose, onNavigate }: LightboxProps) {
+export default function Lightbox({ product, allProducts, onClose, onNavigate, categories }: LightboxProps) {
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -213,15 +214,17 @@ export default function Lightbox({ product, allProducts, onClose, onNavigate }: 
 
           <h2 className="text-2xl font-bold text-white mb-4">{product.productName}</h2>
 
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-300 uppercase mb-2">Description</h3>
-            <p className="text-gray-100 leading-relaxed">{product.description}</p>
-          </div>
+          {product.description && (
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-gray-300 uppercase mb-2">Description</h3>
+              <p className="text-gray-100 leading-relaxed">{product.description}</p>
+            </div>
+          )}
 
           <div className="mb-6">
             <h3 className="text-sm font-semibold text-gray-300 uppercase mb-2">Category</h3>
-            <p className="text-gray-100 capitalize">
-              {product.mainCategory.replace(/-/g, ' ')}
+            <p className="text-gray-100">
+              {categories.find(c => c.id === product.mainCategory)?.label || product.mainCategory.replace(/-/g, ' ')}
             </p>
           </div>
 

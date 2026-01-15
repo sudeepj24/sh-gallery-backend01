@@ -144,6 +144,7 @@ function Gallery() {
           allProducts={filteredProducts}
           onClose={handleCloseLightbox}
           onNavigate={handleLightboxNavigate}
+          categories={categories}
         />
       )}
     </div>
