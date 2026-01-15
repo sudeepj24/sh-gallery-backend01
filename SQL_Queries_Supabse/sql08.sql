@@ -1,7 +1,7 @@
 -- Migration: Add display_order column to products table
 -- Run this in your Supabase SQL editor
 
--- Add display_order column with default value
+-- Add display_order column with default values
 ALTER TABLE products 
 ADD COLUMN display_order INTEGER DEFAULT 999;
 
@@ -20,4 +20,5 @@ CREATE INDEX IF NOT EXISTS idx_products_display_order ON products(display_order)
 
 -- Update the products table to make display_order NOT NULL
 ALTER TABLE products 
+
 ALTER COLUMN display_order SET NOT NULL;

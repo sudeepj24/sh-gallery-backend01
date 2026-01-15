@@ -224,7 +224,7 @@ export default function AdminPanel() {
             </ul>
           </nav>
 
-          {/* Logout Button */}
+          {/* Logout Button (s) */}
           <div className="p-6 border-t border-blue-200/30">
             <button
               onClick={signOut}
