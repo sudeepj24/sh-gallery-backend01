@@ -33,7 +33,9 @@ export default function MobileHeader({
       <div className="px-2 pt-2 pb-0">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <img src="/logo.webp" alt="Secure House" className="h-10 w-auto" />
+            <a href="/" className="cursor-pointer">
+              <img src="/logo.webp" alt="Secure House" className="h-10 w-auto" />
+            </a>
             <div>
               <h1 className="text-xl font-bold text-white">Secure House Gallery</h1>
               <p className="text-sm text-slate-300">
@@ -76,7 +78,7 @@ export default function MobileHeader({
                 onClick={() => handleMainCategoryClick(category.id)}
                 className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                   filters.mainCategory === category.id
-                    ? 'bg-[#A0947F] text-white shadow-md'
+                    ? 'bg-[#D4AF37] text-white shadow-lg'
                     : 'bg-white/90 text-[#5A524A] hover:bg-white hover:shadow-sm'
                 }`}
               >
