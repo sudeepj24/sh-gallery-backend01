@@ -48,24 +48,8 @@ export default function ProductPreview({
 
     setValidating(true);
     
-    let startId = startingNumber;
-    if (idStrategy === 'sequential') {
-      const { data } = await supabase
-        .from('products')
-        .select('product_id')
-        .eq('main_category', category.id);
-
-      if (data) {
-        const numbers = data
-          .map(p => {
-            const match = p.product_id.match(/(\d+)$/);
-            return match ? parseInt(match[1]) : 0;
-          })
-          .filter(n => n > 0);
-        
-        startId = numbers.length > 0 ? Math.max(...numbers) + 1 : 1;
-      }
-    }
+    // Use the startingNumber from props (already calculated in DefaultValues)
+    const startId = startingNumber;
 
     const generatedProducts: BulkProduct[] = files.map((file, index) => {
       const productId = String(startId + index).padStart(3, '0');
