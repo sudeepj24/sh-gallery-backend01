@@ -25,7 +25,11 @@ export default function ImageSelection({
   const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     const files = Array.from(e.target.files || []);
-    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    const imageFiles = files.filter(file => 
+      file.type.startsWith('image/') || 
+      file.name.toLowerCase().endsWith('.heic') || 
+      file.name.toLowerCase().endsWith('.heif')
+    );
     
     if (imageFiles.length !== files.length) {
       alert(`${files.length - imageFiles.length} non-image files were filtered out.`);
@@ -39,7 +43,11 @@ export default function ImageSelection({
     e.preventDefault();
     e.stopPropagation();
     const files = Array.from(e.dataTransfer.files);
-    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    const imageFiles = files.filter(file => 
+      file.type.startsWith('image/') || 
+      file.name.toLowerCase().endsWith('.heic') || 
+      file.name.toLowerCase().endsWith('.heif')
+    );
     const allFiles = [...selectedFiles, ...imageFiles];
     
     onFilesSelect(allFiles);
@@ -97,7 +105,6 @@ export default function ImageSelection({
         <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
         <div className="space-y-2">
           <p className="text-lg font-medium text-gray-700">Drop images here or click to browse</p>
-          <p className="text-sm text-gray-500">Supports JPG, PNG, WebP, HEIC formats</p>
         </div>
         <label className="absolute inset-0 cursor-pointer">
           <input
