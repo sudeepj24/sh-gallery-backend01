@@ -1,4 +1,5 @@
-import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { MainCategory, FilterState } from '../config/categories';
 
 interface DesktopHeaderProps {
@@ -10,6 +11,7 @@ interface DesktopHeaderProps {
 }
 
 export default function DesktopHeader({ filters, onFilterChange, productCount, totalCount, categories }: DesktopHeaderProps) {
+  const navigate = useNavigate();
   const handleMainCategoryClick = (categoryId: string) => {
     if (filters.mainCategory === categoryId) {
       onFilterChange({ ...filters, mainCategory: null, subcategoryFilters: {} });
@@ -34,6 +36,14 @@ export default function DesktopHeader({ filters, onFilterChange, productCount, t
       <div className="px-6 py-4">
         <div className="flex items-center gap-6 mb-4">
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#6B635C] hover:bg-[#5A524A] transition-colors text-white"
+              title="Go back"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={20} />
+            </button>
             <a href="/" className="cursor-pointer">
               <img src="/logo.webp" alt="Secure House" className="h-12 w-auto" />
             </a>

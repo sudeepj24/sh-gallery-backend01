@@ -1,4 +1,5 @@
-import { Filter, Search } from 'lucide-react';
+import { Filter, Search, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { MainCategory, FilterState } from '../config/categories';
 
 interface MobileHeaderProps {
@@ -18,6 +19,7 @@ export default function MobileHeader({
   totalCount,
   categories
 }: MobileHeaderProps) {
+  const navigate = useNavigate();
   const handleMainCategoryClick = (categoryId: string) => {
     if (filters.mainCategory === categoryId) {
       onFilterChange({ mainCategory: null, subcategoryFilters: {} });
@@ -33,6 +35,14 @@ export default function MobileHeader({
       <div className="px-2 pt-2 pb-0">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#5A524A] hover:bg-[#4A423A] transition-colors text-white flex-shrink-0"
+              title="Go back"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={20} />
+            </button>
             <a href="/" className="cursor-pointer">
               <img src="/logo.webp" alt="Secure House" className="h-10 w-auto" />
             </a>
